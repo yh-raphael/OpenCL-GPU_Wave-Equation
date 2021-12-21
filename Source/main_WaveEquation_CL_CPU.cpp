@@ -127,7 +127,8 @@ void Jacobi_WE(CONTEXT_WE* cont) {
     fprintf(stdout, "[Start]   %g\n", grid_cur[Y(64 * n_nodes_1d + 64)]);
 #endif
     float diagonal = 1.0f + 4.0f * we->beta;
-    for (int iter = 0; iter < we->Jacobian_iterations; iter++) { // Jacobian iterations
+    // Jacobian iterations.
+    for (int iter = 0; iter < we->Jacobian_iterations; iter++) {
         for (int j = 1; j < n_nodes_1d - 1; j++) {
             for (int i = 1; i < n_nodes_1d - 1; i++) {
                // [HW4]
@@ -150,14 +151,15 @@ void Jacobi_WE(CONTEXT_WE* cont) {
                 float b = 2 * grid_cur[Y(index)] - grid_prev[Y(index)];
                 float sum = x[K_MINUS_1][Y(index - n_nodes_1d)] + x[K_MINUS_1][Y(index - 1)]
                     + x[K_MINUS_1][Y(index + 1)] + x[K_MINUS_1][Y(index + n_nodes_1d)];
-                x[K][Y(index)] = (b + we->beta * sum) / diagonal;
+
+                x[K][Y(index)] = (b + we->beta * sum) / diagonal;   // 최종 결과 계산.
 
 #if CPU_JACOBI_DEBUG == 1
                  if ((i==64) && (j==64))  fprintf(stdout, "[After iter = %2d]   %g\n", iter,  x[K][Y(index)]);
 #endif
             }
         }
-    }
+    } // end of Jacobi iteration loop.
 #if CPU_JACOBI_DEBUG == 1
   fprintf(stdout, "[End]     %g\n\n", grid_next[Y(64 * n_nodes_1d + 64)]);
 #endif
@@ -323,7 +325,7 @@ int initialize_OpenCL(CONTEXT_WE* cont) {
     ocl_stuffs->local_work_size[1] = LOCAL_WORK_SIZE_1;
 
     errcode_ret = clSetKernelArg(ocl_stuffs->kernel, 3, sizeof(float), 
-        &wave_equation->beta);
+        &wave_equation->beta);                                                 // 아, beta 값은 여기서 던져줌.
     if (CHECK_ERROR_CODE(errcode_ret)) return 1;
 
 #ifdef USE_GPU_IMPLICIT_JACOBI

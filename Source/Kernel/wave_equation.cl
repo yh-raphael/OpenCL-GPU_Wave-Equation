@@ -87,6 +87,13 @@ __kernel void wave_equation_EXPLICIT(
 		(global_id_1 == 0) || (global_id_1 == global_size_1 - 1))
 		return;
 
-   // HW3
- 
+    // HW3
+	int index = global_id_1 * global_size_0 + global_id_0;
+
+	float term1 = 2 * (1.0f - 2.0f * beta) * grid_cur[index].y;
+	float term2 = beta * (grid_cur[index + 1].y + grid_cur[index - 1].y
+		+ grid_cur[index + global_size_0].y + grid_cur[index - global_size_0].y);
+	float term3 = grid_prev[index].y;
+
+	grid_next[index].y = term1 + term2 - term3;
 }
