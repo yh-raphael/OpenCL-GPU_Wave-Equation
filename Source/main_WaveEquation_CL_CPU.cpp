@@ -189,7 +189,28 @@ void Jacobi_GS(CONTEXT_WE* cont) {
     for (int iter = 0; iter < we->Jacobian_iterations; iter++) { // Jacobian iterations
         for (int j = 1; j < n_nodes_1d - 1; j++) {
             for (int i = 1; i < n_nodes_1d - 1; i++) {
-                // HW3
+                // [HW4]
+                 float* x[2];    // x(K_MINUS_1) --> x(K).
+                if (iter == 0) {
+                    x[K_MINUS_1] = grid_cur;
+                    x[K] = grid_tmp;
+            }
+                // Jacobian_iter > 0 and odd.
+                else if ((iter % 2) == 1) {
+                    x[K_MINUS_1] = grid_tmp;
+                    x[K] = grid_next;
+                }
+                // Jacobian_iter > 0 and even.
+                else {
+                    x[K_MINUS_1] = grid_next;
+                    x[K] = grid_tmp;
+                }
+                int index = j * n_nodes_1d + i;
+                float b = 2 * grid_cur[Y(index)] - grid_prev[Y(index)];
+                float sum = x[K][Y(index - n_nodes_1d)] + x[K][Y(index - 1)]    // Lower Triangular part of matrix Q.
+                    + x[K_MINUS_1][Y(index + 1)] + x[K_MINUS_1][Y(index + n_nodes_1d)];  // Upper Triangular part of matrix Q.
+
+                x[K][Y(index)] = (b + we->beta * sum) / diagonal;   // 최종 결과 계산.
 
 #if CPU_GaussSeidel_DEBUG == 1
                 if ((i == 64) && (j == 64))  fprintf(stdout, "[After iter = %2d]   %g\n", iter, x[K][Y(index)]);
